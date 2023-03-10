@@ -540,75 +540,75 @@ void ExceptionHandler(ExceptionType which)
 		}
 
 		
-		// case SC_Seek:
-		// {	
-		// 	//input vi tri(int), id cua file (openfileid)
-		// 	// output: -1 : loi, vi tri thuc su:thanh cong
-		// 	//cong dung: di chuyen con tro den vi tri can thiet trong file
-		// 	pos = machine->ReadRegister(4);
-		// 	int id = machine->ReadRegister(5);
-			
-		// 	//kiem tra id
-		// 	if (id < 0 || id > 14){
-		// 		printf("\n Khong the seek vi id nam ngoai bang mo ta file"
-		// 		machine->WriteRegister(2,-1);
-		// 		IncreasePC();
-		// 		return;
-		// 	}
-		// 	//kiem tra ton tai file
-		// 	if(fileSystem->openf[id]==NULL){
-		// 		printf("\n khong the seek vi file khong ton tai");
-		// 		machine->WriteRegister(2,-1);
-		// 		IncreasePC();
-		// 		return;	
-		// 	}
-		// 	//kiem tra co goi seek tren console khong
-		// 	if (id == 0 || id == 1){
-		// 		printf("\nkhong the seek tren file console");
-		// 		machine->WriteRegister(2,-1);
-		// 		IncreasePC();
-		// 		return;
-		// 	}
-		// 	pos = (pos == -1 ) ? fileSystem->openf[id]->Length(): pos;
-		// 	if (pos > fileSystem ->openf[id]->Length() || pos < 0) {
-		// 		printf("\n Khong the seek file den vi tri nay");
-		// 		machine->WriteRegister(2,-1);
-		// 	}
-		// 	else{
-		// 		fileSystem->openf[id]->Seek(pos);
-		// 		machine->WriteRegister(2,pos);
-		// 	}
-		// 	IncreasePC();
-		// 	return; 
-
-		// }	
 		case SC_Seek:
-		{
-			int pos = machine->ReadRegister(4);
-			int openf_id = machine->ReadRegister(5);
-
-			// seek into files: stdin, stdout, `out of domain` fileSystem
-			if (openf_id < 1 || openf_id > fileSystem->index || fileSystem->openfile[openf_id] == NULL)
-			{
-				machine->WriteRegister(2, -1);
-				break;
+		{	
+			//input vi tri(int), id cua file (openfileid)
+			// output: -1 : loi, vi tri thuc su:thanh cong
+			//cong dung: di chuyen con tro den vi tri can thiet trong file
+			pos = kernel->machine->ReadRegister(4);
+			int id = kernel->machine->ReadRegister(5);
+			
+			//kiem tra id
+			if (id < 0 || id > 14){
+				//printf("\n Khong the seek vi id nam ngoai bang mo ta file"
+				kernel->machine->WriteRegister(2,-1);
+				IncreasePC();
+				return;
 			}
-
-			int len = fileSystem->openfile[openf_id]->Length();	// file size
-
-			if (pos > len)	// try to move file ptr to pos, pos > len --> wrong
-			{
-				machine->WriteRegister(2, -1);
-				break;
+			//kiem tra ton tai file
+			if(kernel->fileSystem->openf[id]==NULL){
+				//printf("\n khong the seek vi file khong ton tai");
+				kernel->machine->WriteRegister(2,-1);
+				IncreasePC();
+				return;	
 			}
+			//kiem tra co goi seek tren console khong
+			if (id == 0 || id == 1){
+				//printf("\nkhong the seek tren file console");
+				kernel->machine->WriteRegister(2,-1);
+				IncreasePC();
+				return;
+			}
+			pos = (pos == -1 ) ? kernel->fileSystem->openf[id]->Length(): pos;
+			if (pos > kernel->fileSystem->openf[id]->Length() || pos < 0) {
+				//printf("\n Khong the seek file den vi tri nay");
+				kernel->machine->WriteRegister(2,-1);
+			}
+			else{
+				kernel->fileSystem->openf[id]->Seek(pos);
+				kernel->machine->WriteRegister(2,pos);
+			}
+			IncreasePC();
+			return; 
 
-			if (pos == -1)	// move file ptr to the begining of file
-				pos = len;
+		}	
+		// case SC_Seek:
+		// {
+		// 	int pos = kernel->machine->ReadRegister(4);
+		// 	int openf_id = kernel->machine->ReadRegister(5);
 
-			fileSystem->openfile[openf_id]->Seek(pos);
-			machine->WriteRegister(2, pos);
-			break;
-		}
+		// 	// seek into files: stdin, stdout, `out of domain` fileSystem
+		// 	if (openf_id < 1 || openf_id > kernel->fileSystem->index || kernel->fileSystem->openf[openf_id] == NULL)
+		// 	{
+		// 		kernel->machine->WriteRegister(2, -1);
+		// 		break;
+		// 	}
+
+		// 	int len = kernel->fileSystem->openf[openf_id]->Length();	// file size
+
+		// 	if (pos > len)	// try to move file ptr to pos, pos > len --> wrong
+		// 	{
+		// 		kernel->machine->WriteRegister(2, -1);
+		// 		break;
+		// 	}
+
+		// 	if (pos == -1)	// move file ptr to the begining of file
+		// 		pos = len;
+
+		// 	kernel->fileSystem->openf[openf_id]->Seek(pos);
+		// 	kernel->machine->WriteRegister(2, pos);
+		// 	break;
+		// }
 		default:{
 			cerr << "Unexpected system call " << type << "\n";
 			break;
