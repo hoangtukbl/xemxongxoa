@@ -29,18 +29,10 @@
 					// See definitions listed under #else
 class OpenFile {
   public:
-	int type;
-	// type 0: read and write
-	// type 1: only read
-	// type 2: stdin
-	// type 3: stdout
-
-	// Constructor OpenFile để lấy vào thêm loại file (type)
-	OpenFile(int f, int t) {
-		file = f; currentOffset = 0;
-		type = t;
-	}
+    int type;
+    int seekPosition;
     OpenFile(int f) { file = f; currentOffset = 0; }	// open the file
+    OpenFile(int f, int mode) { file = f; currentOffset = 0; type = mode; } // open file w special type
     ~OpenFile() { Close(file); }			// close the file
 
     int ReadAt(char *into, int numBytes, int position) { 
@@ -52,11 +44,7 @@ class OpenFile {
 		WriteFile(file, from, numBytes); 
 		return numBytes;
 		}	
-    int Read(char *int Seek(int pos) { 
-		Lseek(file, pos, 0); 
-		currentOffset = Tell(file);
-		return currentOffset;
-		}into, int numBytes) {
+    int Read(char *into, int numBytes) {
 		int numRead = ReadAt(into, numBytes, currentOffset); 
 		currentOffset += numRead;
 		return numRead;
@@ -67,22 +55,26 @@ class OpenFile {
 		return numWritten;
 		}
 
-    int Length() { Lseek(file, 0, 2); return Tell(file); }
-
+    int Length() { 
+		int len;
+		Lseek(file, 0, 2); 
+		len = Tell(file); 
+		Lseek(file, currentOffset, 0);
+		return len; 
+		}
     int Seek(int pos) { 
 		Lseek(file, pos, 0); 
 		currentOffset = Tell(file);
 		return currentOffset;
 		}
-	
-    int GetCurrentPos() { currentOffset = Tell(file); return currentOffset; }
-
+    int GetCurrentPos() { 
+		currentOffset = Tell(file);
+		return currentOffset;
+		}
   private:
     int file;
     int currentOffset;
-	
 };
-
 #else // FILESYS
 class FileHeader;
 

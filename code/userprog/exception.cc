@@ -545,7 +545,7 @@ void ExceptionHandler(ExceptionType which)
 			//input vi tri(int), id cua file (openfileid)
 			// output: -1 : loi, vi tri thuc su:thanh cong
 			//cong dung: di chuyen con tro den vi tri can thiet trong file
-			pos = kernel->machine->ReadRegister(4);
+			int pos = kernel->machine->ReadRegister(4);
 			int id = kernel->machine->ReadRegister(5);
 			
 			//kiem tra id
