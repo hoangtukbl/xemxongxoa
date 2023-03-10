@@ -582,33 +582,40 @@ void ExceptionHandler(ExceptionType which)
 			return; 
 
 		}	
-		// case SC_Seek:
-		// {
-		// 	int pos = kernel->machine->ReadRegister(4);
-		// 	int openf_id = kernel->machine->ReadRegister(5);
+		case SC_Remove:
+		{
+			DEBUG(dbgSys, "\n SC_Remove calling ...");
+			int virtAddr = kernel->machine->ReadRegister(4); // Lay dia chi cua tham so name tu thanh ghi so 4
+			char *filename;
+			filename = User2System(virtAddr, MaxFileLength); // Copy chuoi tu vung nho User Space sang System Space voi bo dem name dai MaxFileLength
 
-		// 	// seek into files: stdin, stdout, `out of domain` fileSystem
-		// 	if (openf_id < 1 || openf_id > kernel->fileSystem->index || kernel->fileSystem->openf[openf_id] == NULL)
-		// 	{
-		// 		kernel->machine->WriteRegister(2, -1);
-		// 		break;
-		// 	}
+			for (int i = 3; i < 20; i++)
+			{
 
-		// 	int len = kernel->fileSystem->openf[openf_id]->Length();	// file size
+				// if (kernel->fileSystem->tableDescriptor[i] != NULL && strcmp(filename, kernel->fileSystem->tableDescriptor[i]) == 0)
+				// {
+				// 	DEBUG(dbgSys, "\n cannot remove file (file is openning) ...");
+				// 	kernel->machine->WriteRegister(2, -1);
+				// 	IncreasePC();
+				// 	return;
+				// }
+			}
 
-		// 	if (pos > len)	// try to move file ptr to pos, pos > len --> wrong
-		// 	{
-		// 		kernel->machine->WriteRegister(2, -1);
-		// 		break;
-		// 	}
-
-		// 	if (pos == -1)	// move file ptr to the begining of file
-		// 		pos = len;
-
-		// 	kernel->fileSystem->openf[openf_id]->Seek(pos);
-		// 	kernel->machine->WriteRegister(2, pos);
-		// 	break;
-		// }
+			if (kernel->fileSystem->Remove(filename))
+			{
+				DEBUG(dbgSys, "\n Remove file success...");
+				kernel->machine->WriteRegister(2, 0);
+				;
+			}
+			else
+			{
+				DEBUG(dbgSys, "\n Can not found file ...");
+				kernel->machine->WriteRegister(2, -1);
+			}
+			IncreasePC();
+			return;
+			break;
+		}
 		default:{
 			cerr << "Unexpected system call " << type << "\n";
 			break;
